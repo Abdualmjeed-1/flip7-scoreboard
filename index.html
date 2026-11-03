@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حاسبة نقاط Flip 7</title>
+<style>
+:root{--bg:#f6f3ee;--card:#fff;--tx:#1d1b18;--mut:#6f6a62;--bd:#e2ddd3;--ac:#e0523a;--ac2:#2a7f62;--chip:#efeae0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17150f;--card:#23201a;--tx:#f3efe6;--mut:#a39d90;--bd:#38342b;--ac:#ef6a52;--ac2:#4cb892;--chip:#302c24}}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;line-height:1.5}
+main{max-width:900px;margin:0 auto;padding:16px}
+h1{margin:4px 0 2px;font-size:1.6rem}
+.sub{color:var(--mut);margin:0 0 16px;font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+h2{font-size:1.05rem;margin:0 0 10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type=text],input[type=number]{background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;font:inherit}
+input[type=text]{flex:1;min-width:140px}
+input[type=number]{width:80px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--bd);background:var(--chip);color:var(--tx);padding:8px 12px}
+button.pri{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+button.ok{background:var(--ac2);border-color:var(--ac2);color:#fff;font-weight:600}
+.tag{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border-radius:20px;padding:4px 6px 4px 12px}
+.tag button{padding:0 8px;border-radius:50%;line-height:1.4}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{min-width:42px;text-align:center;padding:8px 6px}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.chip.mod.on{background:var(--ac2);border-color:var(--ac2)}
+.chip.bust.on{background:#444;border-color:#444;color:#fff}
+.pl{border-top:1px dashed var(--bd);padding-top:10px;margin-top:10px}
+.pl:first-of-type{border:0;padding:0;margin:0}
+.ph{display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.sc{font-size:1.2rem}
+.small{font-size:.8rem;color:var(--mut)}
+.f7{color:var(--ac2);font-weight:700}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;text-align:center}
+th,td{padding:8px;border-bottom:1px solid var(--bd);white-space:nowrap}
+th:first-child,td:first-child{text-align:right}
+.tot td{font-weight:700;font-size:1.1rem}
+.win td{background:color-mix(in srgb,var(--ac2) 28%,var(--card))}
+.banner{background:var(--ac2);color:#fff;padding:12px;border-radius:12px;text-align:center;font-weight:700;margin-bottom:14px}
+details{font-size:.88rem;color:var(--mut)}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-height:44px}
+button:active{transform:scale(.96)}
+input[type=text],input[type=number]{font-size:16px;min-height:44px}
+.chips.nums{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.chips.mods{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.step{display:flex;align-items:center;justify-content:space-between;background:var(--chip);border:1px solid var(--bd);border-radius:8px;padding:2px}
+.step.on{border-color:var(--ac2);background:color-mix(in srgb,var(--ac2) 20%,var(--chip))}
+.step button{min-width:44px;min-height:44px;font-size:1.3rem;padding:0;line-height:1}
+.step span{font-weight:700;font-size:1.05rem}
+.manual{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.manual label{font-size:.9rem;color:var(--mut)}
+.bustbtn{width:100%;background:var(--ac);border-color:var(--ac);color:#fff;font-weight:700;font-size:1.15rem;min-height:54px;margin:10px 0}
+.ph>span:first-child{font-size:1.5rem}
+.bar .bustbtn{flex:1 1 100%;margin:0 0 4px}
+.manual input{flex:1;min-width:140px;background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;font:inherit;font-size:16px;min-height:44px}
+.chips .chip{min-width:0;min-height:48px;font-size:1.05rem;padding:6px 2px}
+.chips .bust{display:none}
+.pl{background:var(--bg);border:1px solid var(--bd)!important;border-radius:12px;padding:10px!important;margin-top:10px!important}
+.sc{font-size:1.35rem}
+.bar{position:sticky;bottom:0;background:var(--card);padding:10px 0 calc(6px + env(safe-area-inset-bottom,0px));margin-top:12px;border-top:1px solid var(--bd);z-index:5}
+.bar button{flex:1}
+.tag button{min-height:32px;min-width:32px}
+th:first-child,td:first-child{position:sticky;right:0;background:var(--card)}
+@media (max-width:480px){main{padding:10px}h1{font-size:1.3rem}.card{padding:12px;border-radius:12px}th,td{padding:8px 6px}}
+</style>
+</head>
+<body>
+<main>
+<h1>🃏 حاسبة نقاط Flip 7</h1>
+<p class="sub">سجّل أوراق كل لاعب في الجولة وسيُحسب المجموع تلقائياً.</p>
+
+<div id="banner"></div>
+
+<div class="card">
+  <h2>اللاعبون</h2>
+  <div class="row">
+    <input type="text" id="pname" placeholder="اسم اللاعب">
+    <button class="pri" id="addP">إضافة</button>
+  </div>
+  <div class="row" id="plist" style="margin-top:10px"></div>
+  <div class="row" style="margin-top:10px">
+    <label class="small">الهدف للفوز:</label>
+    <input type="number" id="target" value="200" min="1">
+  </div>
+</div>
+
+<div class="card" id="roundCard">
+  <h2>الجولة <span id="rn">1</span></h2>
+  <div id="entries"></div>
+  <div class="row bar">
+    <button class="ok" id="save">✔ تسجيل الجولة</button>
+    <button id="clear">مسح الإدخال</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>لوحة النتائج</h2>
+  <div class="tw" id="board"></div>
+  <div class="row" style="margin-top:10px"><button id="reset">🔄 لعبة جديدة</button><button id="undo">↩ حذف آخر جولة</button></div>
+</div>
+
+<details class="card"><summary>قواعد الحساب</summary>
+<ul>
+<li>مجموع أرقام الأوراق الرقمية (0 إلى 12).</li>
+<li>ورقة ×2 تضاعف مجموع الأرقام فقط، ثم تُضاف أوراق +2 و+4 و+6 و+8 و+10.</li>
+<li>جمع 7 أرقام مختلفة = Flip 7 ويعطي +15 نقطة إضافية وتنتهي الجولة.</li>
+<li>إذا تكرر رقم (Bust) تكون نقاط الجولة 0.</li>
+</ul></details>
+</main>
+
+<script>
+const NUMS=[...Array(13).keys()], ADDS=[2,4,6,8,10], KEY='flip7-state';
+let S={players:[],rounds:[],target:200}, cur={}, pi=0;
+const $=id=>document.getElementById(id);
+
+try{const r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+function blank(){return{nums:[],adds:[],x2:false,bust:false,manual:''}}
+function calc(e){
+  if(e.manual!==undefined&&e.manual!==''&&!isNaN(+e.manual))return{pts:Math.round(+e.manual),f7:false};
+  if(e.bust)return{pts:0,f7:false};
+  let s=e.nums.reduce((a,b)=>a+b,0);
+  if(e.x2)s*=2;
+  s+=e.adds.reduce((a,b)=>a+b,0);
+  const f7=e.nums.length>=7;
+  if(f7)s+=15;
+  return{pts:s,f7};
+}
+function totals(){return S.players.map((_,i)=>S.rounds.reduce((a,r)=>a+(r[i]||0),0))}
+
+function toggle(arr,v){const i=arr.indexOf(v);i<0?arr.push(v):arr.splice(i,1)}
+
+function renderPlayers(){
+  $('plist').innerHTML=S.players.map((p,i)=>`<span class="tag">${esc(p)}<button data-rm="${i}" title="حذف">×</button></span>`).join('')||'<span class="small">أضف لاعبين للبدء</span>';
+  $('plist').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{
+    if(S.rounds.length&&!confirm('حذف اللاعب سيمسح كل الجولات المسجلة. متابعة؟'))return;
+    const i=+b.dataset.rm;S.players.splice(i,1);S.rounds=[];cur={};save();renderAll();
+  });
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function next(){
+  const n=S.players.length;if(!n)return;
+  if(pi<n-1){pi++;renderEntries();$('roundCard').scrollIntoView({behavior:'smooth',block:'start'})}
+  else{S.rounds.push(S.players.map((_,i)=>calc(cur[i]||blank()).pts));cur={};pi=0;save();renderAll();window.scrollTo({top:0,behavior:'smooth'})}
+}
+function renderEntries(){
+  const n=S.players.length;
+  if(pi>=n)pi=0;
+  $('pname').closest('.card').style.display=(S.rounds.length>0||pi>0)?'none':'';
+  drawPlayer();
+  if(!n){$('save').style.display='none';return}
+  $('save').style.display='';
+  $('rn').textContent=(S.rounds.length+1)+' · اللاعب '+(pi+1)+' من '+n;
+  $('save').textContent=pi===n-1?'✔ إنهاء الجولة':'التالي ◀';
+  const pl=$('entries').querySelector('.pl');
+  pl.querySelector('.ph').insertAdjacentHTML('afterend','<button class="bustbtn" id="bustNow">صفر نقاط</button>'+(pi>0?'<button id="prevP" style="width:100%">▶ اللاعب السابق</button>':''));
+  $('save').before($('bustNow'));$('bustNow').onclick=()=>{cur[pi].bust=true;cur[pi].manual='';next()};
+  const pv=$('prevP');if(pv)pv.onclick=()=>{pi--;renderEntries()};
+}
+function drawPlayer(){document.querySelectorAll('.bar .bustbtn').forEach(x=>x.remove());
+  $('rn').textContent=S.rounds.length+1;
+  if(!S.players.length){$('entries').innerHTML='<p class="small">لا يوجد لاعبون بعد.</p>';return}
+  $('entries').innerHTML=S.players.map((p,i)=>{if(i!==pi)return '';
+    const e=cur[i]||(cur[i]=blank()),r=calc(e);
+    return `<div class="pl" data-i="${i}">
+      <div class="ph"><span>${esc(p)}</span><span class="sc">${r.pts}${e.manual?' (يدوي)':''} ${r.f7?'<span class="f7">· Flip 7! +15</span>':''}</span></div>
+      <div class="manual"><label>✏️ نقاط يدوية</label><input type="number" inputmode="numeric" data-m placeholder="اتركه فارغاً للحساب من الأوراق" value="${e.manual||''}"></div>
+      <div class="chips nums">${NUMS.map(n=>`<button class="chip ${e.nums.includes(n)?'on':''}" data-n="${n}">${n}</button>`).join('')}</div>
+      <div class="chips mods">${ADDS.map(n=>{const c=e.adds.filter(x=>x===n).length;return `<div class="step ${c?'on':''}"><button data-d="${n}" aria-label="ناقص">−</button><span>+${n}${c?' ×'+c:''}</span><button data-a="${n}" aria-label="زائد">+</button></div>`}).join('')}
+        <button class="chip mod ${e.x2?'on':''}" data-x="1">×2</button>
+        <button class="chip bust ${e.bust?'on':''}" data-b="1">💥 Bust</button></div>
+    </div>`}).join('');
+  $('entries').querySelectorAll('.pl').forEach(el=>{
+    const i=+el.dataset.i,e=cur[i];
+    const mi=el.querySelector('[data-m]');
+    mi.oninput=()=>{e.manual=mi.value;const r=calc(e);el.querySelector('.sc').textContent=r.pts+(mi.value!==''?' (يدوي)':(r.f7?' · Flip 7! +15':''))};
+    el.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+      if(b.dataset.n!==undefined)toggle(e.nums,+b.dataset.n);
+      else if(b.dataset.a!==undefined){if(e.adds.length<30)e.adds.push(+b.dataset.a)}else if(b.dataset.d!==undefined){const i2=e.adds.indexOf(+b.dataset.d);if(i2>-1)e.adds.splice(i2,1)}
+      else if(b.dataset.x)e.x2=!e.x2;
+      else if(b.dataset.b)e.bust=!e.bust;
+      renderEntries();
+    });
+  });
+}
+
+function renderBoard(){
+  if(!S.players.length){$('board').innerHTML='<p class="small">—</p>';return}
+  const t=totals(),max=Math.max(...t);
+  let h='<table><thead><tr><th>اللاعب</th>'+S.rounds.map((_,i)=>`<th>ج${i+1}</th>`).join('')+'<th>المجموع</th></tr></thead><tbody>';
+  S.players.forEach((p,i)=>{
+    h+=`<tr class="${S.rounds.length&&t[i]===max&&max>=S.target?'win':''}"><td>${esc(p)}</td>`+S.rounds.map(r=>`<td>${r[i]??0}</td>`).join('')+`<td><b>${t[i]}</b></td></tr>`;
+  });
+  $('board').innerHTML=h+'</tbody></table>';
+  const ban=$('banner');
+  if(S.rounds.length&&max>=S.target){
+    const w=S.players.filter((_,i)=>t[i]===max).map(esc).join(' و ');
+    ban.innerHTML=`<div class="banner">🏆 الفائز: ${w} بـ ${max} نقطة!</div>`;
+  }else ban.innerHTML='';
+}
+
+function renderAll(){$('target').value=S.target;renderPlayers();renderEntries();renderBoard()}
+
+$('addP').onclick=()=>{
+  const v=$('pname').value.trim();if(!v)return;
+  if(S.rounds.length){alert('ابدأ لعبة جديدة لإضافة لاعبين.');return}
+  S.players.push(v);$('pname').value='';save();renderAll();
+};
+$('pname').onkeydown=e=>{if(e.key==='Enter')$('addP').click()};
+$('target').onchange=()=>{S.target=Math.max(1,+$('target').value||200);save();renderBoard()};
+$('clear').onclick=()=>{cur[pi]=blank();renderEntries()};
+$('save').onclick=()=>{
+  if(!S.players.length)return;
+  S.rounds.push(S.players.map((_,i)=>calc(cur[i]||blank()).pts));
+  cur={};save();renderAll();
+};
+$('save').onclick=next;
+$('undo').onclick=()=>{S.rounds.pop();save();renderAll()};
+$('reset').onclick=()=>{if(confirm('بدء لعبة جديدة؟ سيتم مسح كل شيء (اللاعبين والنقاط والهدف).')){pi=0;S.players=[];S.target=200;S.rounds=[];cur={};save();renderAll()}};
+renderAll();
+</script>
+</body>
+</html>

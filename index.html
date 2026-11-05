@@ -47,11 +47,7 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-hei
 button:active{transform:scale(.96)}
 input[type=text],input[type=number]{font-size:16px;min-height:44px}
 .chips.nums{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.chips.mods{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
-.step{display:flex;align-items:center;justify-content:space-between;background:var(--chip);border:1px solid var(--bd);border-radius:8px;padding:2px}
-.step.on{border-color:var(--ac2);background:color-mix(in srgb,var(--ac2) 20%,var(--chip))}
-.step button{min-width:44px;min-height:44px;font-size:1.3rem;padding:0;line-height:1}
-.step span{font-weight:700;font-size:1.05rem}
+.chips.mods{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .manual{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
 .manual label{font-size:.9rem;color:var(--mut)}
 .bustbtn{width:100%;background:var(--ac);border-color:var(--ac);color:#fff;font-weight:700;font-size:1.15rem;min-height:54px;margin:10px 0}
@@ -173,9 +169,8 @@ function drawPlayer(){document.querySelectorAll('.bar .bustbtn').forEach(x=>x.re
       <div class="ph"><span>${esc(p)}</span><span class="sc">${r.pts}${e.manual?' (يدوي)':''} ${r.f7?'<span class="f7">· Flip 7! +15</span>':''}</span></div>
       <div class="manual"><label>✏️ نقاط يدوية</label><input type="number" inputmode="numeric" data-m placeholder="اتركه فارغاً للحساب من الأوراق" value="${e.manual||''}"></div>
       <div class="chips nums">${NUMS.map(n=>`<button class="chip ${e.nums.includes(n)?'on':''}" data-n="${n}">${n}</button>`).join('')}</div>
-      <div class="chips mods">${ADDS.map(n=>{const c=e.adds.filter(x=>x===n).length;return `<div class="step ${c?'on':''}"><button data-d="${n}" aria-label="ناقص">−</button><span>+${n}${c?' ×'+c:''}</span><button data-a="${n}" aria-label="زائد">+</button></div>`}).join('')}
-        <button class="chip mod ${e.x2?'on':''}" data-x="1">×2</button>
-        <button class="chip bust ${e.bust?'on':''}" data-b="1">💥 Bust</button></div>
+      <div class="chips mods">${ADDS.map(n=>`<button class="chip mod ${e.adds.includes(n)?'on':''}" data-add="${n}">+${n}</button>`).join('')}
+        <button class="chip mod ${e.x2?'on':''}" data-x="1">×2</button></div>
     </div>`}).join('');
   $('entries').querySelectorAll('.pl').forEach(el=>{
     const i=+el.dataset.i,e=cur[i];
@@ -183,9 +178,8 @@ function drawPlayer(){document.querySelectorAll('.bar .bustbtn').forEach(x=>x.re
     mi.oninput=()=>{e.manual=mi.value;const r=calc(e);el.querySelector('.sc').textContent=r.pts+(mi.value!==''?' (يدوي)':(r.f7?' · Flip 7! +15':''))};
     el.querySelectorAll('button').forEach(b=>b.onclick=()=>{
       if(b.dataset.n!==undefined)toggle(e.nums,+b.dataset.n);
-      else if(b.dataset.a!==undefined){if(e.adds.length<30)e.adds.push(+b.dataset.a)}else if(b.dataset.d!==undefined){const i2=e.adds.indexOf(+b.dataset.d);if(i2>-1)e.adds.splice(i2,1)}
+      else if(b.dataset.add!==undefined)toggle(e.adds,+b.dataset.add);
       else if(b.dataset.x)e.x2=!e.x2;
-      else if(b.dataset.b)e.bust=!e.bust;
       renderEntries();
     });
   });

@@ -103,7 +103,7 @@ th:first-child,td:first-child{position:sticky;right:0;background:var(--card)}
 <details class="card"><summary>قواعد الحساب</summary>
 <ul>
 <li>مجموع أرقام الأوراق الرقمية (0 إلى 12).</li>
-<li>ورقة ×2 تضاعف مجموع الأرقام فقط، ثم تُضاف أوراق +2 و+4 و+6 و+8 و+10.</li>
+<li>مجموع أرقام الأوراق الرقمية (0 إلى 12) + أوراق +2 و+4 و+6 و+8 و+10، ثم ×2 تضرب المجموع النهائي.</li>
 <li>جمع 7 أرقام مختلفة = Flip 7 ويعطي +15 نقطة إضافية وتنتهي الجولة.</li>
 <li>إذا تكرر رقم (Bust) تكون نقاط الجولة 0.</li>
 </ul></details>
@@ -122,10 +122,10 @@ function calc(e){
   if(e.manual!==undefined&&e.manual!==''&&!isNaN(+e.manual))return{pts:Math.round(+e.manual),f7:false};
   if(e.bust)return{pts:0,f7:false};
   let s=e.nums.reduce((a,b)=>a+b,0);
-  if(e.x2)s*=2;
   s+=e.adds.reduce((a,b)=>a+b,0);
   const f7=e.nums.length>=7;
   if(f7)s+=15;
+  if(e.x2)s*=2;
   return{pts:s,f7};
 }
 function totals(){return S.players.map((_,i)=>S.rounds.reduce((a,r)=>a+(r[i]||0),0))}

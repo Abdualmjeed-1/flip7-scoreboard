@@ -189,8 +189,10 @@ function renderBoard(){
   if(!S.players.length){$('board').innerHTML='<p class="small">—</p>';return}
   const t=totals(),max=Math.max(...t);
   let h='<table><thead><tr><th>اللاعب</th>'+S.rounds.map((_,i)=>`<th>ج${i+1}</th>`).join('')+'<th>المجموع</th></tr></thead><tbody>';
-  S.players.forEach((p,i)=>{
-    h+=`<tr class="${S.rounds.length&&t[i]===max&&max>=S.target?'win':''}"><td>${esc(p)}</td>`+S.rounds.map(r=>`<td>${r[i]??0}</td>`).join('')+`<td><b>${t[i]}</b></td></tr>`;
+  const order=S.players.map((_,i)=>i).sort((a,b)=>t[b]-t[a]||a-b);
+  order.forEach((i,rank)=>{
+    const p=S.players[i],medal=S.rounds.length?(['🥇 ','🥈 ','🥉 '][rank]||''):'';
+    h+=`<tr class="${S.rounds.length&&t[i]===max&&max>=S.target?'win':''}"><td>${medal}${esc(p)}</td>`+S.rounds.map(r=>`<td>${r[i]??0}</td>`).join('')+`<td><b>${t[i]}</b></td></tr>`;
   });
   $('board').innerHTML=h+'</tbody></table>';
   const ban=$('banner');

@@ -62,6 +62,18 @@ input[type=text],input[type=number]{font-size:16px;min-height:44px}
 .bar button{flex:1}
 .tag button{min-height:32px;min-width:32px}
 th:first-child,td:first-child{position:sticky;right:0;background:var(--card)}
+.pick{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px}
+.pk{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:92px;padding:6px 12px;font-weight:600}
+.pk small{color:var(--mut);font-weight:700}
+.pk.done{border-color:var(--ac2)}
+.pk.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.pk.on small{color:#fff}
+.pk.fin{background:var(--ac2);border-color:var(--ac2);color:#fff;justify-content:center}
+@media (min-width:1300px){
+#roundCard{position:relative}
+.pick{position:absolute;top:0;right:calc(100% + 14px);width:190px;flex-direction:column;overflow:visible;margin:0}
+.pk{width:100%;min-height:52px;font-size:1.05rem}
+}
 @media (max-width:480px){main{padding:10px}h1{font-size:1.3rem}.card{padding:12px;border-radius:12px}th,td{padding:8px 6px}}
 </style>
 </head>
@@ -87,6 +99,7 @@ th:first-child,td:first-child{position:sticky;right:0;background:var(--card)}
 
 <div class="card" id="roundCard">
   <h2>الجولة <span id="rn">1</span></h2>
+  <div class="pick" id="pick"></div>
   <div id="entries"></div>
   <div class="row bar">
     <button class="ok" id="save">✔ تسجيل الجولة</button>
@@ -141,17 +154,29 @@ function renderPlayers(){
 }
 function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 
+function touched(e){return !!e&&(e.nums.length||e.adds.length||e.x2||e.bust||e.manual!=='')}
+function renderPick(){
+  $('pick').innerHTML=S.players.map((p,i)=>`<button class="pk ${i===pi?'on':''} ${touched(cur[i])?'done':''}" data-pk="${i}"><span>${touched(cur[i])?'✔ ':''}${esc(p)}</span><small>${touched(cur[i])?calc(cur[i]).pts:''}</small></button>`).join('')+(S.players.length?'<button class="pk fin" id="finish">✔ إنهاء الجولة</button>':'');
+  if($('finish'))$('finish').onclick=tryFinish;
+  $('pick').querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{pi=+b.dataset.pk;renderEntries()});
+}
+function tryFinish(){
+  const miss=S.players.filter((_,i)=>!touched(cur[i]));
+  if(miss.length&&!confirm('لم تُدخل نقاط لـ: '+miss.join('، ')+' (سيُحسبون 0). متابعة؟'))return;
+  S.rounds.push(S.players.map((_,i)=>calc(cur[i]||blank()).pts));cur={};pi=0;save();renderAll();window.scrollTo({top:0,behavior:'smooth'});
+}
 function next(){
   const n=S.players.length;if(!n)return;
   if(pi<n-1){pi++;renderEntries();$('roundCard').scrollIntoView({behavior:'smooth',block:'start'})}
-  else{S.rounds.push(S.players.map((_,i)=>calc(cur[i]||blank()).pts));cur={};pi=0;save();renderAll();window.scrollTo({top:0,behavior:'smooth'})}
+  else tryFinish();
 }
 function renderEntries(){
   const n=S.players.length;
   if(pi>=n)pi=0;
   $('pname').closest('.card').style.display=(S.rounds.length>0||pi>0)?'none':'';
   drawPlayer();
-  if(!n){$('save').style.display='none';return}
+  if(!n){$('pick').innerHTML='';$('save').style.display='none';return}
+  renderPick();
   $('save').style.display='';
   $('rn').textContent=(S.rounds.length+1)+' · اللاعب '+(pi+1)+' من '+n;
   $('save').textContent=pi===n-1?'✔ إنهاء الجولة':'التالي ◀';
@@ -175,7 +200,7 @@ function drawPlayer(){document.querySelectorAll('.bar .bustbtn').forEach(x=>x.re
   $('entries').querySelectorAll('.pl').forEach(el=>{
     const i=+el.dataset.i,e=cur[i];
     const mi=el.querySelector('[data-m]');
-    mi.oninput=()=>{e.manual=mi.value;const r=calc(e);el.querySelector('.sc').textContent=r.pts+(mi.value!==''?' (يدوي)':(r.f7?' · Flip 7! +15':''))};
+    mi.oninput=()=>{e.manual=mi.value;renderPick();const r=calc(e);el.querySelector('.sc').textContent=r.pts+(mi.value!==''?' (يدوي)':(r.f7?' · Flip 7! +15':''))};
     el.querySelectorAll('button').forEach(b=>b.onclick=()=>{
       if(b.dataset.n!==undefined)toggle(e.nums,+b.dataset.n);
       else if(b.dataset.add!==undefined)toggle(e.adds,+b.dataset.add);
